@@ -1,6 +1,7 @@
 const filmContainer = document.querySelector(".container-cards");
 const modalCard = document.querySelector(".card");
 const modalWindow = document.querySelector(".container-modal");
+const searchFilm = document.querySelector(".input");
 
 class Server {
   constructor(apiKey, apiUrl) {
@@ -71,6 +72,7 @@ class AddFilm extends Server {
 class ModalFilm extends AddFilm {
   constructor(apiKey, apiUrl) {
     super(apiKey, apiUrl);
+    this.arrayFilm = [];
     this.openModalFilm();
   }
 
@@ -82,11 +84,30 @@ class ModalFilm extends AddFilm {
         this.showModal(filmId);
       }
     });
+
     modalWindow.addEventListener("click", (event) => {
       if (event.target.closest(".close-btn")) {
         this.closeModal();
       }
     });
+
+    searchFilm.addEventListener("input", () => {
+      this.searchFilms();
+    });
+  }
+
+  async addFilm() {
+    const films = await this.severApi();
+    this.arrayFilm = films;
+    this.renderFilm(films);
+  }
+
+  searchFilms() {
+    const inputValue = searchFilm.value.trim().toLowerCase();
+    const filteredFilm = this.arrayFilm.filter((film) =>
+      film.nameRu.toLowerCase().includes(inputValue)
+    );
+    this.renderFilm(filteredFilm);
   }
 
   async showModal(filmId) {
@@ -159,6 +180,7 @@ class ModalFilm extends AddFilm {
     `;
     modalWindow.style.display = "flex";
   }
+
   closeModal() {
     modalWindow.style.display = "none";
   }
@@ -169,3 +191,5 @@ const filmApp = new ModalFilm(
   "https://kinopoiskapiunofficial.tech/api/v2.2"
 );
 filmApp.addFilm();
+
+
